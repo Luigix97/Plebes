@@ -1,0 +1,23 @@
+{% extends "index.html" %}
+{% load static %}
+
+{%block content%}
+    <h2>Lista de productos</h2>
+    {% if materiales %}
+        {% for material in materiales %}
+            <p>Artículo: {{ material.nombre_articulo }}</p>
+            <p>Cantidad: {{material.cantidad }} </p>
+            <a href="{% url 'editar_material' pk=material.pk %}"> Editar producto</a>
+            <a href="{% url 'agregar_material' pk=material.pk %}"> Agregar más</a>
+            <a href="{% url 'eliminar_material' pk=material.pk %}">Eliminar material</a>
+            <a href="{% url 'tomar_producto' pk=material.pk %}">
+                <img src="{{ material.imagen.url }}" alt="{{ material.nombre }}">
+            </a>
+        {% endfor %}
+    {% else %}
+        <p>No hay materiales agregados aún.</p>
+    {% endif %}
+    <br>
+    <br>
+    <a href="{% url 'añadir_material' %}">Agregar material</a>
+{%endblock%}
