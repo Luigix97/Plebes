@@ -35,7 +35,7 @@ urlpatterns = [
 urlpatterns += [
     path('iniciar-sesion/', InicioSesionView.as_view(), name='inicio_sesion'),
     path('crear-usuario/', CrearUsuario.as_view(), name='crear_usuario'),
-    
+    path('cerrar-sesion/', CerrarSesionView.as_view(), name='cerrar_sesion'),   
 ]
 
 urlpatterns += [

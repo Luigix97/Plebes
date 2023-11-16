@@ -1,17 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{%block title%}{%endblock%}</title>
-    {%block head%} {%endblock%}
+<title>CSS Template</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.topnav {
+    overflow: hidden;
+    background-color: #333;
+  }
+  
+  .left-link {
+    float: left;
+  }
+  
+  .right-link {
+    float: right;
+  }
+  
+  .topnav a {
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+  }
+  
+  .topnav a:hover {
+    background-color: #ddd;
+    color: black;
+  }
+  
+
+/* Style the content */
+.content {
+  background-color: #ddd;
+  padding: 10px;
+  height: 200px; /* Should be removed. Only for demonstration */
+}
+
+/* Style the footer */
+.footer {
+  background-color: #f1f1f1;
+  padding: 10px;
+}
+</style>
 </head>
 <body>
-    <nav>
-        <a href="{% url 'portal' %}">Inicio</a>
-        <a href="#about">Acerca de</a>
-        <a href="#contact">Contacto</a>
-    </nav>
-    {%block content%}{%endblock%}
+
+    <div class="topnav">
+        <div class="left-link">
+          <a href="{% url 'portal' %}">Inicio</a>
+        </div>
+        <div class="right-link">
+          <a href="{% url 'cerrar_sesion' %}">Cerrar Sesión</a>
+        </div>
+      </div>
+      
+
+{% block content %} {% endblock %}
+
 </body>
 </html>

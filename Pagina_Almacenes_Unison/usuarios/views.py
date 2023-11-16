@@ -4,6 +4,10 @@ from django.contrib.auth import login
 from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView
 from django.views.generic import CreateView
+from django.contrib.auth.views import LogoutView
+from django.contrib.auth.decorators import login_required
+from django.conf.urls.static import static
+
 
 
 from .models import *
@@ -42,3 +46,9 @@ class InicioSesionView(LoginView):
     def form_valid(self, form):
         login(self.request,form.get_user())
         return super(InicioSesionView,self).form_valid(form)
+
+class CerrarSesionView(LogoutView):
+    next_page = reverse_lazy ('portal')
+    
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
