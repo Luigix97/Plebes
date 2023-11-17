@@ -7,14 +7,16 @@
 
     {% block content %}
         {% if form.errors %}
-            <p>Error en el inicio de sesión. Por favor, verifica tus credenciales e inténtalo nuevamente.</p>
+         <div class="alert alert-danger" role="alert">
+            <strong> Error en el inicio de sesión. </strong> Por favor, verifica tus credenciales e inténtalo nuevamente.
+            </div>
         {% endif %}
 
         <div class="login">
             <h2 class="active">Iniciar Sesión</h2>
 
             <form method="post">
-                <h4>Inicio de Sesión</h4>
+
                 {% csrf_token %}
 
                 <input type="text" class="text" name="username" placeholder="Username">
@@ -38,7 +40,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
-    <link rel="stylesheet" href="{% static 'css/inicio_sesion.css' %}">
+    <link rel="stylesheet" href="{% static 'inicio_sesion.css' %}">
 
 </body>
 </html>
