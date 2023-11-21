@@ -1,170 +1,20 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>CSS Template</title>
+<title>Portal</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-* {
-  box-sizing: border-box;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-.topnav {
-    overflow: hidden;
-    background-color: #333;
-  }
-  
-  .left-link {
-    float: left;
-  }
-  
-  .right-link {
-    float: right;
-  }
-  
-  .topnav a {
-    display: block;
-    color: #f2f2f2;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-  }
-  
-  .topnav a:hover {
-    color: black;
-  }
-  
-
-
-  /* Estilo del enlace de Inicio */
-  #Inicio {
-    --c:  #229091; /* the color*/
-    
-    box-shadow: 0 0 0 .1em inset var(--c); 
-    --_g: linear-gradient(var(--c) 0 0) no-repeat;
-    background: 
-      var(--_g) calc(var(--_p,0%) - 100%) 0%,
-      var(--_g) calc(200% - var(--_p,0%)) 0%,
-      var(--_g) calc(var(--_p,0%) - 100%) 100%,
-      var(--_g) calc(200% - var(--_p,0%)) 100%;
-    background-size: 50.5% calc(var(--_p,0%)/2 + .5%);
-    outline-offset: .1em;
-    transition: background-size .4s, background-position 0s .4s;
-  }
-  #Inicio:hover {
-    --_p: 100%;
-    transition: background-position .4s, background-size 0s;
-  }
-  #Inicio:active {
-    box-shadow: 0 0 9e9q inset #0009; 
-    background-color: var(--c);
-    color: #fff;
-  }
-  
-  #Inicio {
-    font-family: system-ui, sans-serif;
-    font-size: 1rem;
-    cursor: pointer;
-    padding: .1em .6em;
-    font-weight: bold;  
-    border: none;
-  }
-  /* Estilo del enlace de cerrar sesión */
-  #cerrarSesion {
-    --c:  #229091; /* the color*/
-    
-    box-shadow: 0 0 0 .1em inset var(--c); 
-    --_g: linear-gradient(var(--c) 0 0) no-repeat;
-    background: 
-      var(--_g) calc(var(--_p,0%) - 100%) 0%,
-      var(--_g) calc(200% - var(--_p,0%)) 0%,
-      var(--_g) calc(var(--_p,0%) - 100%) 100%,
-      var(--_g) calc(200% - var(--_p,0%)) 100%;
-    background-size: 50.5% calc(var(--_p,0%)/2 + .5%);
-    outline-offset: .1em;
-    transition: background-size .4s, background-position 0s .4s;
-  }
-  #cerrarSesion:hover {
-    --_p: 100%;
-    transition: background-position .4s, background-size 0s;
-  }
-  #cerrarSesion:active {
-    box-shadow: 0 0 9e9q inset #0009; 
-    background-color: var(--c);
-    color: #fff;
-  }
-  
-  #cerrarSesion {
-    font-family: system-ui, sans-serif;
-    font-size: 1rem;
-    cursor: pointer;
-    padding: .1em .6em;
-    font-weight: bold;  
-    border: none;
-  }
-
-
-
-
-/* Estilo de la alerta ficticia */
-.alerta:target {
-  display: block;
-}
-
-.alerta {
-  display: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 20px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  z-index: 9999;
-  text-align: center;
-}
-
-.alerta p {
-  margin-bottom: 20px;
-}
-
-.alerta a {
-  display: inline-block;
-  padding: 10px 20px;
-  margin: 0 10px;
-  text-decoration: none;
-  color: #fff;
-  border-radius: 5px;
-}
-
-
-#siRecuadro, #noRecuadro {
-  display: inline-block;
-}
-
-#siRecuadro {
-  background-color: #4CAF50; /* Verde */
-}
-
-#noRecuadro {
-  background-color: #f44336; /* Rojo */
-}
-</style>
 </head>
-<body>
+<link rel="stylesheet" href="{% static 'index.css' %}">
+<body>  
 
   <div class="topnav">
     <div class="left-link" id="Inicio">
       <a href="{% url 'portal' %}">Inicio</a>
     </div>
-    <div class="right-link">
-      <a href="#alerta" id="cerrarSesion">Cerrar Sesión</a>
+    <div class="right-link"  id="cerrarSesion" >
+      <a href="#alerta">Cerrar Sesión</a>
     </div>
   </div>
 
@@ -177,6 +27,7 @@ body {
       <a href="#">No</a>
     </div>
   </div>
+    {% block content %} {% endblock %}
+</body>
 
-  {% block content %} {% endblock %}
 </html>
