@@ -11,7 +11,18 @@
 
   <div class="topnav">
     <div class="left-link" id="Inicio">
-      <a href="{% url 'portal' %}">Inicio</a>
+      {% if user.is_authenticated %}
+        {% if user.rol == 'Admin' %}
+          <a href="{% url 'portal_admin' %}">Inicio</a>
+        {% elif user.rol == 'Intendente' %}
+          <a href="{% url 'portal_intendencia' %}">Inicio</a>
+        {% else %}
+          <a href="{% url 'portal_generico' %}">Inicio</a>
+        {% endif %}
+      {% else %}
+        <!-- Enlace para usuarios no autenticados, si es necesario -->
+        <a href="{% url 'login' %}">Iniciar Sesión</a>
+      {% endif %}
     </div>
     <div class="right-link"  id="cerrarSesion" >
       <a href="#alerta">Cerrar Sesión</a>
@@ -27,7 +38,8 @@
       <a href="#">No</a>
     </div>
   </div>
-    {% block content %} {% endblock %}
+  
+  {% block content %} {% endblock %}
 </body>
 
 </html>

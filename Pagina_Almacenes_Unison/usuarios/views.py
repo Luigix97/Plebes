@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.contrib.auth import login
 from django.urls import reverse_lazy
+from django.urls import reverse
 from django.contrib.auth.views import LoginView
 from django.views.generic import CreateView
 from django.contrib.auth.views import LogoutView
@@ -31,21 +32,29 @@ class CrearUsuario(CreateView):
             return render(request, self.template_name, context={'form': form})
 
 
-# Iniciar Sesión
+from django.urls import reverse
+
+from django.urls import reverse
+
 class InicioSesionView(LoginView):
     template_name = 'iniciar_sesion.html'
     authentication_form = FormularioLogin
-    next_page = reverse_lazy('portal')
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return HttpResponseRedirect(reverse_lazy('portal'))
-
-        return super().dispatch(request, *args, **kwargs)
-    
     def form_valid(self, form):
-        login(self.request,form.get_user())
-        return super(InicioSesionView,self).form_valid(form)
+        response = super().form_valid(form)
+
+        user = form.get_user()
+
+        if user.rol == Usuario.Rol.ADMIN:
+            return HttpResponseRedirect(reverse('portal_admin'))
+        elif user.rol == Usuario.Rol.INTENDENCIA:
+            return HttpResponseRedirect(reverse('portal_intendencia'))
+        else:
+            # Puedes agregar más condiciones según los roles que tengas
+            return HttpResponseRedirect(reverse('portal_generico'))
+
+
+
 
 class CerrarSesionView(LogoutView):
     next_page = reverse_lazy ('portal')

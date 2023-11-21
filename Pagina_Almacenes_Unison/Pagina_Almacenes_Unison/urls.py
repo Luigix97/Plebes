@@ -19,16 +19,27 @@ from django.urls import path, re_path
 from django.views.static import serve
 from django.views.generic import RedirectView
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
+
 
 from .views import *
 from usuarios.views import *
 from materiales.views import *
 from reportes.views import *
 
+def es_admin(user):
+    return user.rol == Usuario.Rol.ADMIN
+
+def es_intendencia(user):
+    return user.rol == Usuario.Rol.INTENDENCIA
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('portal/',login_required(Portal.as_view()), name='portal'),
+    path('portal/', login_required(Portal.as_view()), name='portal'),
+    path('portal/admin/', user_passes_test(es_admin, login_url='/portal/')(Portal_admin.as_view()), name='portal_admin'),
+    path('portal/intendencia/', user_passes_test(es_intendencia, login_url='/portal/')(Portal_intendencia.as_view()), name='portal_intendencia'),
     path('', RedirectView.as_view(url='portal/')),
 ]
 
