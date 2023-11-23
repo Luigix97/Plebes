@@ -1,6 +1,10 @@
 {% extends "index.html" %}
 {% load static %}
 
+{% block title %}
+    Inventario de Materiales
+{% endblock %}
+
 {% block content %}
   <link rel="stylesheet" href="{% static 'lista_materiales.css' %}">
   <link rel="stylesheet" href="{% static 'lista_materiales_tabla.js' %}">
@@ -21,9 +25,8 @@
       <thead class="thead-dark">
         <tr>
           <th scope="col">Artículo</th>
-          <th scope="col">Cantidad</th>
+          <th scope="col">Cantidad Disponible</th>
           <th scope="col">Categoría</th>
-          <th scope="col">Descripción</th>
           <th scope="col">Acciones</th>
         </tr>
       </thead>
@@ -34,11 +37,25 @@
               <td>{{ material.nombre_articulo }}</td>
               <td>{{ material.cantidad }}</td>
               <td>{{ material.categoria }}</td>
-              <td>{{ material.descripcion }}</td>
               <td>
-                <a href="{% url 'tomar_producto' pk=material.pk %}" class="btn btn-primary btn-sm">
+                <a href="{% url 'ver_producto' pk=material.pk %}" class="btn btn-primary btn-sm">
                   Ver Detalles
                 </a>
+
+                <form method="post" action="{% url 'lista_materiales' %}" enctype="multipart/form-data" class="mt-4 form-inline">
+                  {% csrf_token %}
+                  {{ form.as_p }}
+                  <div class="form-group mr-2">
+                    <label for="cantidad{{ material.pk }}">Cantidad a Tomar:</label>
+                    <input type="number" name="cantidad" id="cantidad{{ material.pk }}" class="form-control" min="1" value="1" required>
+                  </div>
+                  <div class="form-group">
+                    <input type="hidden" name="pk" value="{{ material.pk }}">
+                    <button type="submit" class="btn btn-success" id="btn-submit">
+                      Tomar
+                    </button>
+                  </div>
+                </form>
               </td>
             </tr>
           {% endfor %}
@@ -59,9 +76,7 @@
           <a href="?page=1">&laquo; primera</a>
           <a href="?page={{ materiales.previous_page_number }}">anterior</a>
         {% endif %}
-        
         <span class="current-page">{{ materiales.number }}</span>
-        
         {% if materiales.has_next %}
           <a href="?page={{ materiales.next_page_number }}">siguiente</a>
           <a href="?page={{ materiales.paginator.num_pages }}">última &raquo;</a>
@@ -70,7 +85,7 @@
     </div>
   {% endif %}
 
-  {% if request.GET.taken == "true" %}
+  {% if request.method == "POST" and request.POST.taken == "true" %}
     <div class="alert alert-success" role="alert">
       ¡Producto tomado exitosamente!
     </div>

@@ -2,7 +2,7 @@ from typing import Any
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, DeleteView, UpdateView, FormView
+from django.views.generic import ListView, CreateView, DeleteView, UpdateView, FormView, DetailView
 
 from .models import Gasto, Material
 from reportes.models import Reporte
@@ -12,7 +12,6 @@ class ListaMateriales(ListView):
     model = Material
     template_name = 'materiales/lista_material.html'
     context_object_name = 'materiales'
-
     
 class AñadirMaterial(CreateView):
     model = Material
@@ -73,11 +72,11 @@ class AgregarProducto(FormView):
 
          
 class TomarProducto(FormView):
-    template_name = 'materiales/tomar_producto.html'
+    template_name = 'materiales/lista_materiales.html'
     form_class = FormularioTomarProducto
     success_url = reverse_lazy('lista_materiales')
 
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['material'] = get_object_or_404(Material, pk=self.kwargs['pk'])
         return context
@@ -112,7 +111,6 @@ class TomarProducto(FormView):
             # Si la cantidad deseada es mayor, muestra un mensaje de error
             form.add_error('cantidad_a_tomar', 'La cantidad deseada es mayor a la cantidad disponible.')
             return self.form_invalid(form)
-
     
     
 class EliminarMaterial(DeleteView):
@@ -124,4 +122,13 @@ class ListaGastos(ListView):
     model = Gasto
     template_name = 'materiales/lista_gastos.html'
     context_object_name = 'gastos'
+    
+class VerProducto(DetailView):
+    model = Material
+    template_name = 'materiales/ver_producto.html'  # Cambia al nombre correcto de tu plantilla
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Puedes agregar más contexto según sea necesario
+        return context 
     

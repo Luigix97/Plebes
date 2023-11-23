@@ -57,6 +57,7 @@ urlpatterns += [
     path('editar-material/<int:pk>/', login_required(EditarMaterial.as_view()), name='editar_material'),
     path('tomar-material/<int:pk>/', login_required(TomarProducto.as_view()), name='tomar_producto'),
     path('eliminar-material/<int:pk>/', login_required(EliminarMaterial.as_view()), name = 'eliminar_material'),
+    path('ver-material/<int:pk>/', VerProducto.as_view(), name='ver_producto'),
 ]
 
 urlpatterns += [
