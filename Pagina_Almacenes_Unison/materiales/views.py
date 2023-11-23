@@ -76,18 +76,22 @@ class TomarProducto(FormView):
     template_name = 'materiales/tomar_producto.html'
     form_class = FormularioTomarProducto
     success_url = reverse_lazy('lista_materiales')
-    
+
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context['material'] = get_object_or_404(Material, pk=self.kwargs['pk'])
         return context
-        
-    
+
     def form_valid(self, form):
         material = get_object_or_404(Material, pk=self.kwargs['pk'])
 
         # Obtén la cantidad deseada del formulario
         cantidad_deseada = form.cleaned_data['cantidad_a_tomar']
+
+        # Verifica si la cantidad a tomar es negativa
+        if cantidad_deseada < 0:
+            form.add_error('cantidad_a_tomar', 'La cantidad a tomar no puede ser negativa.')
+            return self.form_invalid(form)
 
         # Verifica si la cantidad deseada es menor o igual a la cantidad disponible
         if cantidad_deseada <= material.cantidad:
@@ -98,10 +102,10 @@ class TomarProducto(FormView):
             if material.cantidad <= material.umbral:
                 # Esto hace un reporte/solicitud cuando la cantidad del artículo baja del umbral establecido al principio
                 Reporte.objects.create(
-                    solicitante =self.request.user,
-                    producto = material,
-                    cantidad = cantidad_deseada, # Esto hace que se solicite la misma cantidad que se tomó, pueden poner otra cantidad ustedes sis gustan
-                    descripcion = 'Quedan pocos artículos',
+                    solicitante=self.request.user,
+                    producto=material,
+                    cantidad=cantidad_deseada,
+                    descripcion='Quedan pocos artículos',
                 )
             return super().form_valid(form)
         else:
