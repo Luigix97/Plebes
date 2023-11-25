@@ -39,18 +39,18 @@
               <td>{{ material.categoria }}</td>
               <td>
                 <a href="{% url 'ver_producto' pk=material.pk %}" class="btn btn-primary btn-sm">
-                  Ver Detalles
+                    Ver Detalles
                 </a>
-
-                <form method="post" action="{% url 'lista_materiales' %}" enctype="multipart/form-data" class="mt-4 form-inline">
+              </td>
+              <td>
+                <form method="post" action="{% url 'tomar_producto' pk=material.pk %}" enctype="multipart/form-data" class="mt-4 form-inline">
                   {% csrf_token %}
                   {{ form.as_p }}
                   <div class="form-group mr-2">
                     <label for="cantidad{{ material.pk }}">Cantidad a Tomar:</label>
-                    <input type="number" name="cantidad" id="cantidad{{ material.pk }}" class="form-control" min="1" value="1" required>
+                    <input type="number" name="cantidad_a_tomar" id="cantidad{{ material.pk }}" class="form-control" min="1" value="1">
                   </div>
                   <div class="form-group">
-                    <input type="hidden" name="pk" value="{{ material.pk }}">
                     <button type="submit" class="btn btn-success" id="btn-submit">
                       Tomar
                     </button>
@@ -85,10 +85,11 @@
     </div>
   {% endif %}
 
-  {% if request.method == "POST" and request.POST.taken == "true" %}
-    <div class="alert alert-success" role="alert">
+  {% if request.GET.taken == "true" %}
+  <div class="alert alert-success" role="alert">
       ¡Producto tomado exitosamente!
-    </div>
-  {% endif %}
+  </div>
+{% endif %}
+
   
 {% endblock %}

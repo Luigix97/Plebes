@@ -2,11 +2,12 @@ from typing import Any
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, DeleteView, UpdateView, FormView, DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView, CreateView, DeleteView, UpdateView, FormView, DetailView, TemplateView
 
-from .models import Gasto, Material
+from .models import Gasto, Material, Carrito
 from reportes.models import Reporte
-from .forms import FormularioAgregarProducto, FormularioMaterial, FormularioTomarProducto
+from .forms import FormularioAgregarProducto, FormularioMaterial, FormularioTomarProducto, FormularioAgregarAlCarrito
 
 class ListaMateriales(ListView):
     model = Material
@@ -39,79 +40,58 @@ class EditarMaterial(UpdateView):
     form_class = FormularioMaterial
     success_url = reverse_lazy('lista_materiales')
 
-class AgregarProducto(FormView):
+class AgregarProducto(LoginRequiredMixin, FormView):
     template_name = 'materiales/agregar_producto.html'
-    form_class = FormularioAgregarProducto
+    form_class = FormularioAgregarAlCarrito
     success_url = reverse_lazy('lista_materiales')
-    
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context['material'] = get_object_or_404(Material, pk=self.kwargs['pk'])
-        return context
-        
-    
+
     def form_valid(self, form):
         material = get_object_or_404(Material, pk=self.kwargs['pk'])
+        cantidad = form.cleaned_data['cantidad']
 
-        # Obtén la cantidad deseada del formulario
-        cantidad = form.cleaned_data['cantidad_a_agregar']
+        # Añadir el producto al carrito
+        carrito, created = Carrito.objects.get_or_create(usuario=self.request.user, material=material)
+        carrito.cantidad += cantidad
+        carrito.save()
 
-        # Crea el gasto hecho por el producto agregado
-        Gasto.objects.create(producto=material, cantidad=cantidad, gasto=(cantidad*material.precio_unitario))
-        
-        # Checa si había reporte, si había lo pone "completado" por agregar cantidad suficiente
-        if material.cantidad + cantidad >= material.umbral:
-            Reporte.objects.filter(producto=material).update(estado='Completado')
-            
-                
-        # Realiza la operación de resta
-        material.cantidad += cantidad
-        material.save()
-            
+        # Opcional: Puedes mostrar un mensaje de éxito o redirigir a la página del carrito
         return super().form_valid(form)
-
          
-class TomarProducto(FormView):
-    template_name = 'materiales/lista_materiales.html'
-    form_class = FormularioTomarProducto
-    success_url = reverse_lazy('lista_materiales')
+class TomarProductoView(TemplateView):  # Cambia a TemplateView para manejar solicitudes GET
+    template_name = 'materiales/tomar_producto.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['material'] = get_object_or_404(Material, pk=self.kwargs['pk'])
+        context['form'] = FormularioTomarProducto()
         return context
 
-    def form_valid(self, form):
-        material = get_object_or_404(Material, pk=self.kwargs['pk'])
+    def post(self, request, *args, **kwargs):
+        form = FormularioTomarProducto(request.POST)
+        if form.is_valid():
+            material = get_object_or_404(Material, pk=self.kwargs['pk'])
+            cantidad_deseada = form.cleaned_data['cantidad_a_tomar']
 
-        # Obtén la cantidad deseada del formulario
-        cantidad_deseada = form.cleaned_data['cantidad_a_tomar']
+            if cantidad_deseada < 0:
+                form.add_error('cantidad_a_tomar', 'La cantidad a tomar no puede ser negativa.')
+                return self.render_to_response(self.get_context_data(form=form))
 
-        # Verifica si la cantidad a tomar es negativa
-        if cantidad_deseada < 0:
-            form.add_error('cantidad_a_tomar', 'La cantidad a tomar no puede ser negativa.')
-            return self.form_invalid(form)
+            if cantidad_deseada <= material.cantidad:
+                material.cantidad -= cantidad_deseada
+                material.save()
 
-        # Verifica si la cantidad deseada es menor o igual a la cantidad disponible
-        if cantidad_deseada <= material.cantidad:
-            # Realiza la operación de resta
-            material.cantidad -= cantidad_deseada
-            material.save()
+                if material.cantidad <= material.umbral:
+                    Reporte.objects.create(
+                        solicitante=self.request.user,
+                        producto=material,
+                        cantidad=cantidad_deseada,
+                        descripcion='Quedan pocos artículos',
+                    )
+                return HttpResponseRedirect(reverse_lazy('lista_materiales') + '?taken=true')
+            else:
+                form.add_error('cantidad_a_tomar', 'La cantidad deseada es mayor a la cantidad disponible.')
 
-            if material.cantidad <= material.umbral:
-                # Esto hace un reporte/solicitud cuando la cantidad del artículo baja del umbral establecido al principio
-                Reporte.objects.create(
-                    solicitante=self.request.user,
-                    producto=material,
-                    cantidad=cantidad_deseada,
-                    descripcion='Quedan pocos artículos',
-                )
-            return super().form_valid(form)
-        else:
-            # Si la cantidad deseada es mayor, muestra un mensaje de error
-            form.add_error('cantidad_a_tomar', 'La cantidad deseada es mayor a la cantidad disponible.')
-            return self.form_invalid(form)
-    
+        return self.render_to_response(self.get_context_data(form=form))
     
 class EliminarMaterial(DeleteView):
     model = Material
@@ -132,3 +112,13 @@ class VerProducto(DetailView):
         # Puedes agregar más contexto según sea necesario
         return context 
     
+class VerCarrito(LoginRequiredMixin, TemplateView):
+    template_name = 'materiales/ver_carrito.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['carrito'] = Carrito.objects.filter(usuario=self.request.user)
+        return context
+
+class ConfirmarPedido(TemplateView):
+    template_name = 'materiales/confirmar_pedido.html'  # Ajusta el nombre según tu implementación

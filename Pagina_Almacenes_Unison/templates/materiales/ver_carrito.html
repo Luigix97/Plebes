@@ -1,0 +1,36 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block title %}
+    Carrito de Compras
+{% endblock %}
+
+{% block content %}
+  <h2 class="text-center mb-4">Carrito de Compras</h2>
+
+  <div class="table-container">
+    <table class="table table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">Artículo</th>
+          <th scope="col">Cantidad</th>
+          <th scope="col">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in carrito %}
+          <tr>
+            <td>{{ item.material.nombre_articulo }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>{{ item.subtotal }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-center mt-4">
+    <a href="{% url 'confirmar_pedido' %}" class="btn btn-success">Confirmar Pedido</a>
+  </div>
+
+{% endblock %}

@@ -55,9 +55,11 @@ urlpatterns += [
     path('añadir-material/', login_required(AñadirMaterial.as_view()), name='añadir_material'),
     path('agregar-material/<int:pk>/', login_required(AgregarProducto.as_view()), name='agregar_material'),
     path('editar-material/<int:pk>/', login_required(EditarMaterial.as_view()), name='editar_material'),
-    path('tomar-material/<int:pk>/', login_required(TomarProducto.as_view()), name='tomar_producto'),
+    path('tomar-material/<int:pk>/', login_required(TomarProductoView.as_view()), name='tomar_producto'),
     path('eliminar-material/<int:pk>/', login_required(EliminarMaterial.as_view()), name = 'eliminar_material'),
     path('ver-material/<int:pk>/', VerProducto.as_view(), name='ver_producto'),
+    path('ver-carrito/', VerCarrito.as_view(), name='ver_carrito'),
+    path('confirmar-pedido/', ConfirmarPedido.as_view(), name='confirmar_pedido'),
 ]
 
 urlpatterns += [

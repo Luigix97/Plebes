@@ -21,8 +21,12 @@
 
             <form method="post" enctype="multipart/form-data" class="mt-4">
               {% csrf_token %}
-              {{ form.as_p }}
-                
+              
+              <!-- Agrega un label para la entrada de cantidad -->
+              <div class="form-group">
+                <label for="{{ form.cantidad_a_tomar.id_for_label }}">Cantidad a Tomar:</label>
+                {{ form.cantidad_a_tomar }}
+              </div>
 
               <div class="text-center">
                 <button type="submit" class="btn btn-success" id="btn-submit">

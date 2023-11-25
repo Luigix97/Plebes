@@ -1,4 +1,5 @@
 from django.db import models
+from usuarios.models import Usuario 
 
 # Create your models here.
 
@@ -28,3 +29,11 @@ class Gasto(models.Model):
     cantidad = models.IntegerField('Cantidad')
     gasto = models.DecimalField('Gasto',decimal_places=2, max_digits=5)
     fecha = models.DateField('Fecha de gasto',auto_now=True)
+
+class Carrito(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    material = models.ForeignKey(Material, on_delete=models.CASCADE)
+    cantidad = models.IntegerField('Cantidad')
+
+    def subtotal(self):
+        return self.material.precio_unitario * self.cantidad

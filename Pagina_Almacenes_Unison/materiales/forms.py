@@ -24,3 +24,8 @@ class FormularioAgregarProducto(forms.Form):
             'required': 'required',
         }
     ))
+
+class FormularioAgregarAlCarrito(forms.Form):
+    cantidad = forms.IntegerField(min_value=1, label='Cantidad a agregar')
+    
+    
