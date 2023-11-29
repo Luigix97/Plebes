@@ -43,19 +43,36 @@
                 </a>
               </td>
               <td>
-                <form method="post" action="{% url 'agregar_al_carrito' pk=material.pk %}" enctype="multipart/form-data" class="mt-4 form-inline">
-                  {% csrf_token %}
-                  <div class="form-group mr-2">
-                    <label for="cantidad{{ material.pk }}">Cantidad a Agregar:</label>
-                    <input type="number" name="cantidad_a_agregar" id="cantidad{{ material.pk }}" class="form-control" min="1" value="1">
-                  </div>
-                  <div class="form-group">
-                    <button type="submit" class="btn btn-success" id="btn-submit">
-                      Agregar al Carrito
-                    </button>
-                  </div>
-                </form>
+                {% if material.cantidad > 0 %}
+                  <form method="post" action="{% url 'agregar_al_carrito' pk=material.pk %}" enctype="multipart/form-data" class="mt-4 form-inline">
+                    {% csrf_token %}
+                    <div class="form-group mr-2">
+                      <label for="cantidad{{ material.pk }}">Cantidad a Agregar:</label>
+                      <input type="number" name="cantidad_a_agregar" id="cantidad{{ material.pk }}" class="form-control" min="1" value="1">
+                    </div>
+                    <div class="form-group">
+                      <button type="submit" class="btn btn-success" id="btn-submit">
+                        Agregar al Carrito
+                      </button>
+                    </div>
+                  </form>
+                {% else %}
+                  <p>Material agotado</p>
+                {% endif %}
               </td>
+            </td>
+            {% if user.is_authenticated and user.rol == 'Admin' %}
+            <td>
+                <a href="{% url 'editar_material' pk=material.pk %}">Editar producto</a>
+              </td>
+              <td>
+                <a href="{% url 'agregar_material' pk=material.pk %}">Agregar más</a>
+              </td>
+              <td>
+                <a href="{% url 'eliminar_material' pk=material.pk %}">Eliminar material</a>
+              </td>
+            {% endif %}
+          </tr>
             </tr>
           {% endfor %}
         {% else %}
@@ -92,6 +109,9 @@
 
 <div class="text-center mt-4">
   <a href="{% url 'ver_carrito' %}" class="btn btn-info">Ver Carrito</a>
+  {% if user.is_authenticated and user.rol == 'Admin' %}
+    <a href="{% url 'añadir_material' %}" class="btn btn-success">Agregar Material</a>
+  {% endif %}
 </div>
 
   

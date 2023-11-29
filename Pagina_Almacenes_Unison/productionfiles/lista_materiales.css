@@ -1,0 +1,13 @@
+
+.table-container {
+    margin-top: 20px;
+  }
+  
+  .table th, .table td {
+    text-align: center;
+  }
+  
+  .table img {
+    border-radius: 50%;
+  }
+  

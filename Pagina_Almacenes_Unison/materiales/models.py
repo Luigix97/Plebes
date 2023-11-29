@@ -26,8 +26,8 @@ class Material(models.Model):
 
 class Gasto(models.Model):
     producto = models.ForeignKey(Material, on_delete=models.CASCADE, verbose_name="Material", ) 
-    cantidad = models.IntegerField('Cantidad')
-    gasto = models.DecimalField('Gasto',decimal_places=2, max_digits=5)
+    cantidad = models.DecimalField(max_digits=10, decimal_places=2)
+    gasto = models.DecimalField('Gasto',max_digits=10,decimal_places=2)
     fecha = models.DateField('Fecha de gasto',auto_now=True)
 
 class Carrito(models.Model):
