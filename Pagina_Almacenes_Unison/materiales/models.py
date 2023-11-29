@@ -33,7 +33,11 @@ class Gasto(models.Model):
 class Carrito(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
-    cantidad = models.IntegerField('Cantidad')
+    cantidad = models.IntegerField(default=0)
+    confirmado = models.BooleanField(default=False)
 
-    def subtotal(self):
-        return self.material.precio_unitario * self.cantidad
+    def verificar_disponibilidad(self):
+        return self.material.cantidad >= self.cantidad
+    
+    def __str__(self):
+        return f"{self.material.nombre_articulo} - {self.cantidad}"

@@ -58,8 +58,11 @@ urlpatterns += [
     path('tomar-material/<int:pk>/', login_required(TomarProductoView.as_view()), name='tomar_producto'),
     path('eliminar-material/<int:pk>/', login_required(EliminarMaterial.as_view()), name = 'eliminar_material'),
     path('ver-material/<int:pk>/', VerProducto.as_view(), name='ver_producto'),
-    path('ver-carrito/', VerCarrito.as_view(), name='ver_carrito'),
-    path('confirmar-pedido/', ConfirmarPedido.as_view(), name='confirmar_pedido'),
+    path('agregar-al-carrito/<int:pk>/', AgregarAlCarritoView.as_view(), name='agregar_al_carrito'),
+    path('confirmar-pedido/', confirmar_pedido, name='confirmar_pedido'),
+    path('ver-carrito/', ver_carrito, name='ver_carrito'),
+    path('eliminar-del-carrito/<int:pk>/', eliminar_del_carrito, name='eliminar_del_carrito'),
+    path('borrar-carrito/', borrar_carrito, name='borrar_carrito'),
 ]
 
 urlpatterns += [

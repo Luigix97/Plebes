@@ -1,9 +1,9 @@
 from typing import Any
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, CreateView, DeleteView, UpdateView, FormView, DetailView, TemplateView
+from django.views.generic import ListView, CreateView, DeleteView, UpdateView, FormView, DetailView, TemplateView, View
 
 from .models import Gasto, Material, Carrito
 from reportes.models import Reporte
@@ -112,13 +112,63 @@ class VerProducto(DetailView):
         # Puedes agregar más contexto según sea necesario
         return context 
     
-class VerCarrito(LoginRequiredMixin, TemplateView):
-    template_name = 'materiales/ver_carrito.html'
+class AgregarAlCarritoView(View):
+    def post(self, request, pk):
+        # Obtén el material
+        material = get_object_or_404(Material, pk=pk)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['carrito'] = Carrito.objects.filter(usuario=self.request.user)
-        return context
+        # Filtra los objetos Carrito para el usuario y el material especificados que no estén confirmados
+        carrito_items = Carrito.objects.filter(usuario=request.user, material=material, confirmado=False)
 
-class ConfirmarPedido(TemplateView):
-    template_name = 'materiales/confirmar_pedido.html'  # Ajusta el nombre según tu implementación
+        # Verifica si hay algún objeto Carrito que cumpla con los criterios
+        if carrito_items.exists():
+            # Si hay al menos uno, toma el primero
+            carrito_item = carrito_items.first()
+        else:
+            # Si no hay ninguno, crea uno nuevo
+            carrito_item = Carrito(usuario=request.user, material=material, confirmado=False, cantidad=0)
+
+        carrito_item.cantidad += 1  # O ajusta según tus necesidades
+        carrito_item.save()
+
+        # Mensaje de éxito
+        return HttpResponseRedirect(reverse_lazy('lista_materiales') + '?taken=true')
+    
+    
+def confirmar_pedido(request):
+    carrito_items = Carrito.objects.filter(usuario=request.user)
+
+    for item in carrito_items:
+        if not item.verificar_disponibilidad():
+            # Aquí puedes manejar el error, por ejemplo, redireccionar a una página de error.
+            return render(request, 'materiales/error_disponibilidad.html')
+
+        # Reducir la cantidad en el modelo Material
+        item.material.cantidad -= item.cantidad
+        item.material.save()
+
+    # Marcar los elementos del carrito como confirmados
+    carrito_items.update(confirmado=True)
+
+    return redirect('ver_carrito')
+    
+def ver_carrito(request):
+    carrito_items = Carrito.objects.filter(usuario=request.user, confirmado=False)
+    total_items = carrito_items.count()
+
+    context = {
+        'carrito_items': carrito_items,
+        'total_items': total_items,
+    }
+
+    return render(request, 'materiales/ver_carrito.html', context)  
+
+def eliminar_del_carrito(request, pk):
+    item = Carrito.objects.get(pk=pk)
+    item.delete()
+    return redirect('ver_carrito')
+
+def borrar_carrito(request):
+    carrito_items = Carrito.objects.filter(usuario=request.user)
+    carrito_items.delete()
+    return redirect('ver_carrito')
