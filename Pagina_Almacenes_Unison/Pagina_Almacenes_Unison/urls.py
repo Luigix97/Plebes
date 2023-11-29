@@ -69,6 +69,7 @@ urlpatterns += [
     path('lista-reportes/', login_required(ListaReportes.as_view()), name='lista_reportes'),
     path('añadir-reporte/', login_required(CrearReporte.as_view()), name='hacer_reporte'),
     path('eliminar-reporte/<int:pk>/', login_required(EliminarReporte.as_view()), name = 'eliminar_reporte'),
+    path('borrar-todos-reportes/', BorrarTodosReportesView.as_view(), name='borrar_todos_reportes'),   
 ]
 
 urlpatterns += [

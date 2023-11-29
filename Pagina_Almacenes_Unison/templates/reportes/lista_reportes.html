@@ -1,7 +1,7 @@
 {% extends "index.html" %}
 {% load static %}
 
-{%block content%}
+{% block content %}
     <h2>Lista de productos</h2>
     {% if reportes %}
         {% for reporte in reportes %}
@@ -9,12 +9,15 @@
             <p><b>Solicitud: </b>{{ reporte }}</p>
             <p><b>Estado:</b> {{ reporte.estado}}</p>
             <p><b>Fecha:</b> {{ reporte.fecha}}</p>
-            <a href="{% url 'eliminar_reporte' pk=reporte.pk %}">Eliminar solicitud </a>
+            <a href="{% url 'eliminar_reporte' pk=reporte.pk %}">Eliminar solicitud</a>
             <hr>
         {% endfor %}
+        
+        <!-- Agregar enlace para eliminar todos los reportes -->
+        <a href="{% url 'borrar_todos_reportes' %}">Eliminar todos los reportes</a>
     {% else %}
         <p>No hay solicitudes aún.</p>
     {% endif %}
     <br>
     <a href="{% url 'hacer_reporte' %}">Hacer solicitud</a>
-{%endblock%}
+{% endblock %}
