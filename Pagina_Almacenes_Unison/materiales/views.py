@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, FormView, DetailView, TemplateView, View
 
 from .models import Gasto, Material, Carrito
-from reportes.models import Reporte
+from reportes.models import Reporte, DetalleReporte
 from .forms import FormularioAgregarProducto, FormularioMaterial, FormularioTomarProducto, FormularioAgregarAlCarrito
 
 class ListaMateriales(ListView):
@@ -40,23 +40,24 @@ class EditarMaterial(UpdateView):
     form_class = FormularioMaterial
     success_url = reverse_lazy('lista_materiales')
 
-class AgregarProducto(LoginRequiredMixin, FormView):
+class AgregarProducto(FormView):
     template_name = 'materiales/agregar_producto.html'
-    form_class = FormularioAgregarAlCarrito
+    form_class = FormularioAgregarProducto
     success_url = reverse_lazy('lista_materiales')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['material'] = get_object_or_404(Material, pk=self.kwargs['pk'])
+        return context
+
     def form_valid(self, form):
-        material = get_object_or_404(Material, pk=self.kwargs['pk'])
-        cantidad = form.cleaned_data['cantidad']
-
-        # Añadir el producto al carrito
-        carrito, created = Carrito.objects.get_or_create(usuario=self.request.user, material=material)
-        carrito.cantidad += cantidad
-        carrito.save()
-
-        # Opcional: Puedes mostrar un mensaje de éxito o redirigir a la página del carrito
+        # Lógica para manejar la forma válida, por ejemplo, actualizar el modelo Material
+        material = self.get_context_data()['material']
+        cantidad_a_agregar = form.cleaned_data['cantidad_a_agregar']
+        material.cantidad += cantidad_a_agregar
+        material.save()
         return super().form_valid(form)
-         
+    
 class TomarProductoView(TemplateView):  # Cambia a TemplateView para manejar solicitudes GET
     template_name = 'materiales/tomar_producto.html'
 
