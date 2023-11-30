@@ -63,6 +63,8 @@ urlpatterns += [
     path('ver-carrito/', ver_carrito, name='ver_carrito'),
     path('eliminar-del-carrito/<int:pk>/', eliminar_del_carrito, name='eliminar_del_carrito'),
     path('borrar-carrito/', borrar_carrito, name='borrar_carrito'),
+    path('agregar-al-carrito-bulk/', agregar_al_carrito_bulk, name='agregar_al_carrito_bulk'),
+
 ]
 
 urlpatterns += [
