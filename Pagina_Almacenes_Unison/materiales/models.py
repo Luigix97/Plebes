@@ -12,7 +12,7 @@ class Material(models.Model):
         LIMPIEZA = 'Limpieza'
         OFICINA = 'Oficina'
     categoria = models.CharField('Categoría',max_length=10, choices=Categoria_Material.choices)
-    cantidad = models.IntegerField('Cantidad', blank=True, null=True)
+    cantidad = models.IntegerField('Cantidad')
     imagen = models.ImageField('Imagen')
     descripcion = models.CharField('Descripción',max_length=100,blank=True, null=True)
     umbral = models.IntegerField('Umbral mínimo')
