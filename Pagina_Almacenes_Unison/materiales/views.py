@@ -6,15 +6,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, FormView, DetailView, TemplateView, View
 
 from .models import Gasto, Material, Carrito
-from reportes.models import Reporte, DetalleReporte
-from .forms import FormularioAgregarProducto, FormularioMaterial, FormularioTomarProducto
+from reportes.models import Reporte
+from .forms import FormularioAgregarProducto, FormularioMaterial, FormularioTomarProducto, FormularioAgregarAlCarrito
 
 class ListaMateriales(ListView):
-    paginate_by = 5  # o cualquier otro número según tus preferencias
     model = Material
     template_name = 'materiales/lista_material.html'
     context_object_name = 'materiales'
-
+    
 class AñadirMaterial(CreateView):
     model = Material
     form_class = FormularioMaterial
@@ -41,22 +40,21 @@ class EditarMaterial(UpdateView):
     form_class = FormularioMaterial
     success_url = reverse_lazy('lista_materiales')
 
-class AgregarProducto(FormView):
+class AgregarProducto(LoginRequiredMixin, FormView):
     template_name = 'materiales/agregar_producto.html'
-    form_class = FormularioAgregarProducto
+    form_class = FormularioAgregarAlCarrito
     success_url = reverse_lazy('lista_materiales')
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['material'] = get_object_or_404(Material, pk=self.kwargs['pk'])
-        return context
 
     def form_valid(self, form):
-        # Lógica para manejar la forma válida, por ejemplo, actualizar el modelo Material
-        material = self.get_context_data()['material']
-        cantidad_a_agregar = form.cleaned_data['cantidad_a_agregar']
-        material.cantidad += cantidad_a_agregar
-        material.save()
+        material = get_object_or_404(Material, pk=self.kwargs['pk'])
+        cantidad = form.cleaned_data['cantidad']
+
+        # Añadir el producto al carrito
+        carrito, created = Carrito.objects.get_or_create(usuario=self.request.user, material=material)
+        carrito.cantidad += cantidad
+        carrito.save()
+
+        # Opcional: Puedes mostrar un mensaje de éxito o redirigir a la página del carrito
         return super().form_valid(form)
          
 class TomarProductoView(TemplateView):  # Cambia a TemplateView para manejar solicitudes GET
@@ -119,19 +117,19 @@ class AgregarAlCarritoView(View):
         # Obtén el material
         material = get_object_or_404(Material, pk=pk)
 
-        # Obtén la cantidad a agregar del formulario
-        cantidad_a_agregar = int(request.POST.get('cantidad_a_agregar', 1))
+        # Filtra los objetos Carrito para el usuario y el material especificados que no estén confirmados
+        carrito_items = Carrito.objects.filter(usuario=request.user, material=material, confirmado=False)
 
-        # Verifica si el material ya está en el carrito para el usuario actual y no está confirmado
-        carrito_item = Carrito.objects.filter(usuario=request.user, material=material, confirmado=False).first()
-
-        if carrito_item:
-            # Si el material ya está en el carrito, simplemente actualiza la cantidad
-            carrito_item.cantidad += cantidad_a_agregar
-            carrito_item.save()
+        # Verifica si hay algún objeto Carrito que cumpla con los criterios
+        if carrito_items.exists():
+            # Si hay al menos uno, toma el primero
+            carrito_item = carrito_items.first()
         else:
-            # Si el material no está en el carrito, crea un nuevo objeto Carrito
-            Carrito.objects.create(usuario=request.user, material=material, cantidad=cantidad_a_agregar, confirmado=False)
+            # Si no hay ninguno, crea uno nuevo
+            carrito_item = Carrito(usuario=request.user, material=material, confirmado=False, cantidad=0)
+
+        carrito_item.cantidad += 1  # O ajusta según tus necesidades
+        carrito_item.save()
 
         # Mensaje de éxito
         return HttpResponseRedirect(reverse_lazy('lista_materiales') + '?taken=true')
@@ -139,11 +137,8 @@ class AgregarAlCarritoView(View):
 def confirmar_pedido(request):
     carrito_items = Carrito.objects.filter(usuario=request.user)
 
-    # Crear un objeto Reporte
-    reporte = Reporte.objects.create(
-        solicitante=request.user,
-        estado=Reporte.EstadoSolicitud.PENDIENTE,
-    )
+    # Diccionario para almacenar información sobre los materiales tomados
+    reporte_info = {}
 
     for item in carrito_items:
         if not item.verificar_disponibilidad():
@@ -154,19 +149,32 @@ def confirmar_pedido(request):
         item.material.cantidad -= item.cantidad
         item.material.save()
 
-        # Crear un objeto DetalleReporte para cada material individual
-        DetalleReporte.objects.create(
-            reporte=reporte,
-            producto=item.material,
-            cantidad=item.cantidad,
-        )
+        # Agregar información al informe
+        nombre_articulo = item.material.nombre_articulo
+        if nombre_articulo not in reporte_info:
+            reporte_info[nombre_articulo] = {
+                'producto': nombre_articulo,
+                'cantidad': 0,
+            }
+
+        reporte_info[nombre_articulo]['cantidad'] += item.cantidad
 
         # Marcar el elemento del carrito como confirmado
         item.confirmado = True
         item.save()
-        
-    carrito_items.filter(confirmado=True).delete()
 
+    # Crear un objeto Reporte para cada grupo de productos solicitados
+    for info in reporte_info.values():
+        Reporte.objects.create(
+            solicitante=request.user,
+            producto=item.material,  # Utilizamos el último material del bucle
+            cantidad=info['cantidad'],
+            descripcion=Reporte.Descripcion.PRODUCTO_ESCASO,
+            estado=Reporte.EstadoSolicitud.PENDIENTE,
+        )
+
+    # Eliminar todos los elementos confirmados del carrito
+    carrito_items.filter(confirmado=True).delete()
 
     return redirect('ver_carrito')
     
@@ -190,15 +198,3 @@ def borrar_carrito(request):
     carrito_items = Carrito.objects.filter(usuario=request.user)
     carrito_items.delete()
     return redirect('ver_carrito')
-
-def agregar_al_carrito_bulk(request):
-    cantidades = request.POST.getlist('cantidades[]')
-    materiales_ids = request.POST.getlist('materiales[]')
-
-    for cantidad, material_id in zip(cantidades, materiales_ids):
-        cantidad = int(cantidad)
-        material = Material.objects.get(pk=material_id)
-
-        if cantidad > 0:
-            Carrito.objects.create(usuario=request.user, material=material, cantidad=cantidad)
-    return HttpResponseRedirect(reverse_lazy('lista_materiales') + '?taken=true')
