@@ -21,12 +21,14 @@
         {% endif %}
       {% else %}
         <!-- Enlace para usuarios no autenticados, si es necesario -->
-        <a href="{% url 'login' %}">Iniciar Sesión</a>
+        <a href="{% url 'inicio_sesion' %}">Iniciar Sesión</a>
       {% endif %}
     </div>
-    <div class="right-link"  id="cerrarSesion" >
-      <a href="#alerta">Cerrar Sesión</a>
-    </div>
+    {% if user.is_authenticated %}
+      <div class="right-link"  id="cerrarSesion" >
+        <a href="#alerta">Cerrar Sesión</a>
+      </div>
+    {% endif %}
   </div>
 
   <div class="alerta" id="alerta">
