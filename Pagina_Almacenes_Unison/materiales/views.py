@@ -134,21 +134,47 @@ class AgregarAlCarritoView(View):
         # Mensaje de éxito
         return HttpResponseRedirect(reverse_lazy('lista_materiales') + '?taken=true')
     
-    
 def confirmar_pedido(request):
     carrito_items = Carrito.objects.filter(usuario=request.user)
 
+    # Diccionario para almacenar información sobre los materiales tomados
+    reporte_info = {}
+
     for item in carrito_items:
         if not item.verificar_disponibilidad():
-            # Aquí puedes manejar el error, por ejemplo, redireccionar a una página de error.
+            # Manejar el error, por ejemplo, redireccionar a una página de error.
             return render(request, 'materiales/error_disponibilidad.html')
 
         # Reducir la cantidad en el modelo Material
         item.material.cantidad -= item.cantidad
         item.material.save()
 
-    # Marcar los elementos del carrito como confirmados
-    carrito_items.update(confirmado=True)
+        # Agregar información al informe
+        nombre_articulo = item.material.nombre_articulo
+        if nombre_articulo not in reporte_info:
+            reporte_info[nombre_articulo] = {
+                'producto': nombre_articulo,
+                'cantidad': 0,
+            }
+
+        reporte_info[nombre_articulo]['cantidad'] += item.cantidad
+
+        # Marcar el elemento del carrito como confirmado
+        item.confirmado = True
+        item.save()
+
+    # Crear un objeto Reporte para cada grupo de productos solicitados
+    for info in reporte_info.values():
+        Reporte.objects.create(
+            solicitante=request.user,
+            producto=item.material,  # Utilizamos el último material del bucle
+            cantidad=info['cantidad'],
+            descripcion=Reporte.Descripcion.PRODUCTO_ESCASO,
+            estado=Reporte.EstadoSolicitud.PENDIENTE,
+        )
+
+    # Eliminar todos los elementos confirmados del carrito
+    carrito_items.filter(confirmado=True).delete()
 
     return redirect('ver_carrito')
     
