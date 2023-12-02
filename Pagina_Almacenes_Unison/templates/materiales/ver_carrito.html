@@ -33,9 +33,19 @@
 
     <div class="text-center">
       <div class="text-center">
-        <a href="{% url 'lista_materiales' %}" class="btn btn-primary">Regresar a la Lista de Materiales</a>
-        <a href="{% url 'borrar_carrito' %}" class="btn btn-warning">Borrar Todo el Carrito</a>
-        <a href="{% url 'confirmar_pedido' %}" class="btn btn-success">Confirmar Pedido</a>
+        {% for item in carrito_items %}
+          {% if item.cantidad > item.material.cantidad %}
+            <p class="text-danger">¡Alerta! La cantidad en el carrito para "{{ item.material.nombre_articulo }}" es mayor que la cantidad total de materiales disponibles.</p>
+            <a href="{% url 'lista_materiales' %}" class="btn btn-primary">Regresar a la Lista de Materiales</a>
+            <a href="{% url 'borrar_carrito' %}" class="btn btn-warning">Borrar Todo el Carrito</a>
+          {% else %}
+            {% if forloop.last %}
+              <a href="{% url 'lista_materiales' %}" class="btn btn-primary">Regresar a la Lista de Materiales</a>
+              <a href="{% url 'borrar_carrito' %}" class="btn btn-warning">Borrar Todo el Carrito</a>
+              <a href="{% url 'confirmar_pedido' %}" class="btn btn-success">Confirmar Pedido</a>
+            {% endif %}
+          {% endif %}        
+        {% endfor %}
       </div>
     </div>
   {% else %}
@@ -44,15 +54,15 @@
   {% endif %}
 
   {% if error_message %}
-  <div class="alert alert-danger" role="alert">
-    {{ error_message }}
-  </div>
-{% endif %}
+    <div class="alert alert-danger" role="alert">
+      {{ error_message }}
+    </div>
+  {% endif %}
 
-{% if success_message %}
-  <div class="alert alert-success" role="alert">
-    {{ success_message }}
-  </div>
-{% endif %}
+  {% if success_message %}
+    <div class="alert alert-success" role="alert">
+      {{ success_message }}
+    </div>
+  {% endif %}
   
 {% endblock %}

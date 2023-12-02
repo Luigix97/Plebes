@@ -17,7 +17,7 @@ class FormularioTomarProducto(forms.Form):
     ))
 
 class FormularioAgregarProducto(forms.Form):
-    cantidad_a_agregar = forms.IntegerField(label = 'Cantidad a agregar', widget = forms.NumberInput(
+    cantidad_a_agregar = forms.IntegerField(min_value=1,label = 'Cantidad a agregar', widget = forms.NumberInput(
         attrs = {
             'class': 'form-control',
             'placeholder': 'Seleccione la cantidad a agregar',

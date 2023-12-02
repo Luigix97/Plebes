@@ -9,6 +9,9 @@ from .models import Gasto, Material, Carrito
 from reportes.models import Reporte, DetalleReporte
 from .forms import FormularioAgregarProducto, FormularioMaterial, FormularioTomarProducto, FormularioAgregarAlCarrito
 
+
+
+
 class ListaMateriales(ListView):
     model = Material
     template_name = 'materiales/lista_material.html'
@@ -51,11 +54,18 @@ class AgregarProducto(FormView):
         return context
 
     def form_valid(self, form):
-        # Lógica para manejar la forma válida, por ejemplo, actualizar el modelo Material
+        # Get the material and update its quantity
         material = self.get_context_data()['material']
         cantidad_a_agregar = form.cleaned_data['cantidad_a_agregar']
         material.cantidad += cantidad_a_agregar
         material.save()
+
+        Gasto.objects.create(
+            producto=material,
+            cantidad=cantidad_a_agregar,
+            gasto=(material.precio_unitario * cantidad_a_agregar),
+        )
+
         return super().form_valid(form)
     
 class TomarProductoView(TemplateView):  # Cambia a TemplateView para manejar solicitudes GET

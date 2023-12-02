@@ -32,10 +32,6 @@ class CrearUsuario(CreateView):
             return render(request, self.template_name, context={'form': form})
 
 
-from django.urls import reverse
-
-from django.urls import reverse
-
 class InicioSesionView(LoginView):
     template_name = 'iniciar_sesion.html'
     authentication_form = FormularioLogin
@@ -49,15 +45,11 @@ class InicioSesionView(LoginView):
             return HttpResponseRedirect(reverse('portal_admin'))
         elif user.rol == Usuario.Rol.INTENDENCIA:
             return HttpResponseRedirect(reverse('portal_intendencia'))
-        else:
-            # Puedes agregar más condiciones según los roles que tengas
-            return HttpResponseRedirect(reverse('portal_generico'))
-
 
 
 
 class CerrarSesionView(LogoutView):
-    next_page = reverse_lazy ('portal')
+    next_page = reverse_lazy ('inicio_sesion')
     
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)

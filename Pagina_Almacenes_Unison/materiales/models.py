@@ -12,7 +12,7 @@ class Material(models.Model):
         LIMPIEZA = 'Limpieza'
         OFICINA = 'Oficina'
     categoria = models.CharField('Categoría',max_length=10, choices=Categoria_Material.choices)
-    cantidad = models.IntegerField('Cantidad', blank=True, null=True)
+    cantidad = models.PositiveIntegerField('Cantidad', blank=True, null=True)
     imagen = models.ImageField('Imagen')
     descripcion = models.CharField('Descripción',max_length=100,blank=True, null=True)
     umbral = models.IntegerField('Umbral mínimo')
@@ -33,7 +33,7 @@ class Gasto(models.Model):
 class Carrito(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
-    cantidad = models.IntegerField(default=0)
+    cantidad = models.PositiveIntegerField(default=0)
     confirmado = models.BooleanField(default=False)
 
     def verificar_disponibilidad(self):

@@ -21,6 +21,11 @@
     </a>
   </div>
 
+  {% if generar_alerta %}
+  <script>
+    alert("La cantidad de {{ material.nombre_articulo }} está por debajo del umbral mínimo");
+  </script>
+{% endif %}
 </body>
 <link rel="stylesheet" href="{% static 'Portal.css' %}">
 {% endblock %}

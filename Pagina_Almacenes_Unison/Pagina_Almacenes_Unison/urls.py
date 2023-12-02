@@ -37,9 +37,8 @@ def es_intendencia(user):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('portal/', login_required(Portal.as_view()), name='portal'),
     path('portal/admin/', user_passes_test(es_admin, login_url='/portal/')(Portal_admin.as_view()), name='portal_admin'),
-    path('portal/intendencia/', user_passes_test(es_intendencia, login_url='/portal/')(Portal_intendencia.as_view()), name='portal_intendencia'),
+    path('portal/', user_passes_test(es_intendencia, login_url='/portal/')(Portal_intendencia.as_view()), name='portal_intendencia'),
     path('', RedirectView.as_view(url='portal/')),
 ]
 
