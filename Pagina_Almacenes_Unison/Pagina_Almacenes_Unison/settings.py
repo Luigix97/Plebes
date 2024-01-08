@@ -121,7 +121,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
+
+STATIC_ROOT = BASE_DIR / 'productionfiles'
+
+STATIC_URL = 'static/'
+
+#Add this in your settings.py file:
+STATICFILES_DIRS = [
+    BASE_DIR / 'mystaticfiles'
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -134,7 +142,6 @@ AUTH_USER_MODEL = 'usuarios.Usuario'
 # Configuración de URL Login
 LOGIN_URL = reverse_lazy('inicio_sesion')
 LOGOUT_REDIRECT_URL = reverse_lazy('inicio_sesion')
-LOGIN_REDIRECT_URL = reverse_lazy('portal')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

@@ -1,4 +1,5 @@
 from django.db import models
+from usuarios.models import Usuario 
 
 # Create your models here.
 
@@ -11,7 +12,7 @@ class Material(models.Model):
         LIMPIEZA = 'Limpieza'
         OFICINA = 'Oficina'
     categoria = models.CharField('Categoría',max_length=10, choices=Categoria_Material.choices)
-    cantidad = models.IntegerField('Cantidad')
+    cantidad = models.PositiveIntegerField('Cantidad', blank=True, null=True)
     imagen = models.ImageField('Imagen')
     descripcion = models.CharField('Descripción',max_length=100,blank=True, null=True)
     umbral = models.IntegerField('Umbral mínimo')
@@ -25,6 +26,18 @@ class Material(models.Model):
 
 class Gasto(models.Model):
     producto = models.ForeignKey(Material, on_delete=models.CASCADE, verbose_name="Material", ) 
-    cantidad = models.IntegerField('Cantidad')
-    gasto = models.DecimalField('Gasto',decimal_places=2, max_digits=5)
+    cantidad = models.DecimalField(max_digits=10, decimal_places=2)
+    gasto = models.DecimalField('Gasto',max_digits=10,decimal_places=2)
     fecha = models.DateField('Fecha de gasto',auto_now=True)
+
+class Carrito(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    material = models.ForeignKey(Material, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(default=0)
+    confirmado = models.BooleanField(default=False)
+
+    def verificar_disponibilidad(self):
+        return self.material.cantidad >= self.cantidad
+    
+    def __str__(self):
+        return f"{self.material.nombre_articulo} - {self.cantidad}"

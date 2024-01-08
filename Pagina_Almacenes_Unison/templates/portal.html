@@ -1,15 +1,18 @@
 {% extends "index.html" %}
 {% load static %}
 
-{%block title%}
-    Portal
-{%endblock%}
 
-{%block content%}
-    <h1>Portal</h1>
+{% block content %}
+
+<body id="content" class="portal-content">
+  <h1>Portal</h1>
+ 
+  <div id:"Botones-Portal" class="portal-content" >
     <a href="{% url 'lista_materiales' %}">Materiales</a>
-    <br>
     <a href="{% url 'lista_reportes' %}">Reportes</a>
-    <br>
     <a href="{% url 'lista_gastos' %}">Gastos</a>
-{%endblock%}
+  </div>
+  
+</body>
+<link rel="stylesheet" href="{% static 'Portal.css' %}">
+{% endblock %}

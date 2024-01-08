@@ -38,7 +38,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     apellidos = models.CharField('Apellidos',max_length=50)
     rol = models.CharField('Rol',max_length=12, choices=Rol.choices)
     edificio = models.CharField('Edificio',max_length=50, blank=True, null=True)
-    piso = models.IntegerField('Piso',blank=True, null=True)
+    piso = models.PositiveIntegerField('Piso',blank=True, null=True)
     
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

@@ -1,7 +1,8 @@
 from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, DeleteView, UpdateView
+from django.views.generic import ListView, View, CreateView, DeleteView, UpdateView, TemplateView
 
 from .models import Reporte
 from .forms import FormularioReporte
@@ -34,3 +35,14 @@ class EliminarReporte(DeleteView):
     success_url = reverse_lazy('lista_reportes')
     template_name = 'confirmar_eliminar.html'
 
+class BorrarTodosReportesView(View):
+    template_name = 'reportes/borrar_todos_reportes.html'
+
+    def get(self, request):
+        reportes = Reporte.objects.all()
+        return render(request, self.template_name, {'reportes': reportes})
+
+    def post(self, request):
+        # Borrar todos los reportes
+        Reporte.objects.all().delete()
+        return redirect('portal_admin')

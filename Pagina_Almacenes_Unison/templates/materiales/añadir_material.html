@@ -7,7 +7,7 @@
 
 {% block content %}
 <form method="post" enctype="multipart/form-data">
-    <div >
+    <div>
         <h2>Crear material</h2>
         {% csrf_token %}
         {{form.as_p}}
@@ -15,9 +15,9 @@
         <button type="submit" class="button-signup" id="btn-submit">
             Crear
         </button>
-        <button type="button" href="{% url 'lista_materiales' %}">
+        <a href="{% url 'lista_materiales' %}" class="button-cancel">
             Cancelar
-        </button>
+        </a>
     </div>
 </form>
 {% endblock %}
